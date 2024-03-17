@@ -39,7 +39,8 @@
                 <div class="col-md-12">
                     <div class="mt-5 mb-3 clearfix">
                         <h2 class="float-left">Account Details</h2>
-                        <a href="create.php" class="btn btn-success float-right"><i class="fa fa-plus"></i> Add New</a>
+                        <a href="addnew.php" class="btn btn-success float-right"><i class="fa fa-plus"></i> Add New</a>
+        
                     </div>
                     <?php
                     require_once "config.php";
