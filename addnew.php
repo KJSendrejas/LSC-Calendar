@@ -1,60 +1,104 @@
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
 <?php
 // Include config file
 require_once "config.php";
  
 // Define variables and initialize with empty values
-$name = $address = $salary = "";
-$name_err = $address_err = $salary_err = "";
+$id  = $date = $name = $broll = $spbet = $winlose = $shares = "";
+$id_err  = $date_err = $name_err = $start_broll_err = $unit_psize_err = $win_lose_err = $shares_err = "";
  
 // Processing form data when form is submitted
 if($_SERVER["REQUEST_METHOD"] == "POST"){
     
+     // Validate id
+     $input_id = trim($_POST["id"]);
+     if(empty($input_id)){
+        $id_err = "Please enter an address.";     
+    } else{
+        $id = $input_id;
+    }
+
+    // Validate date
+    $input_date = trim($_POST["date"]);
+    if(empty($input_date)){
+    $date_err = "Please enter date.";     
+    } else{
+    $date = $input_date;
+    }
+
     // Validate name
     $input_name = trim($_POST["name"]);
     if(empty($input_name)){
-        $name_err = "Please enter a name.";
-    } elseif(!filter_var($input_name, FILTER_VALIDATE_REGEXP, array("options"=>array("regexp"=>"/^[a-zA-Z\s]+$/")))){
-        $name_err = "Please enter a valid name.";
+    $name_err = "Please enter a name.";
     } else{
         $name = $input_name;
     }
     
-    // Validate address
-    $input_address = trim($_POST["address"]);
-    if(empty($input_address)){
-        $address_err = "Please enter an address.";     
+    // Validate bankroll
+    $input_broll = trim($_POST["broll"]);
+    if(empty($input_broll)){
+        $start_broll_err = "Please enter the starting bankroll.";     
+    } elseif(!ctype_digit($input_broll)){
+        $start_broll_err = "Please enter a valid input.";
     } else{
-        $address = $input_address;
+        $broll = $input_broll;
     }
-    
-    // Validate salary
-    $input_salary = trim($_POST["salary"]);
-    if(empty($input_salary)){
-        $salary_err = "Please enter the salary amount.";     
-    } elseif(!ctype_digit($input_salary)){
-        $salary_err = "Please enter a positive integer value.";
+
+    // Validate unit size per bet
+    $input_spbet = trim($_POST["spbet"]);
+    if(empty($input_spbet)){
+        $unit_psize_err = "Please enter the unit size amount.";     
+    } elseif(!ctype_digit($input_spbet)){
+        $unit_psize_err = "Please enter a valid input.";
     } else{
-        $salary = $input_salary;
+        $spbet = $input_spbet;
     }
+
+     // Validate win/lose
+     $input_winlose = trim($_POST["winlose"]);
+     if(empty($input_winlose)){
+         $win_lose_err = "Please enter the unit size amount.";     
+     } elseif(!ctype_digit($input_winlose)){
+         $win_lose_err = "Please enter a valid input.";
+     } else{
+         $winlose = $input_winlose;
+     }
+
+     // Validate shares
+     $input_shares = trim($_POST["shares"]);
+     if(empty($input_shares)){
+         $shares_err = "Please enter the share amount.";     
+     } elseif(!ctype_digit($input_shares)){
+         $shares_err = "Please enter a valid input.";
+     } else{
+         $shares = $input_shares;
+     }
     
     // Check input errors before inserting in database
-    if(empty($name_err) && empty($address_err) && empty($salary_err)){
+    if(empty($id_err) && empty($date_err) && empty($name_err) && empty($start_broll_err) && empty($unit_psize_err) && empty($winlose_err) && empty($shares_err)){
         // Prepare an insert statement
-        $sql = "INSERT INTO employees (name, address, salary) VALUES (?, ?, ?)";
+        $sql = "INSERT INTO members (id , date , name, start_broll, unit_pbet, win_lose, share ) VALUES (?, ?, ?, ?, ?, ?, ?)";
          
-        if($stmt = mysqli_prepare($link, $sql)){
+        if($stmt = mysqli_prepare($conn, $sql)){
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "sss", $param_name, $param_address, $param_salary);
+            mysqli_stmt_bind_param($stmt, "sssssss", $param_id, $param_date, $param_name, $param_broll, $param_spbet, $param_winlose, $param_shares);
             
             // Set parameters
+            $param_id = $id;
+            $param_date = $date;
             $param_name = $name;
-            $param_address = $address;
-            $param_salary = $salary;
+            $param_broll = $broll;
+            $param_spbet = $spbet;
+            $param_winlose = $winlose;
+            $param_shares = $shares;
             
             // Attempt to execute the prepared statement
             if(mysqli_stmt_execute($stmt)){
                 // Records created successfully. Redirect to landing page
-                header("location: index.php");
+                header("location: calendar2.php");
                 exit();
             } else{
                 echo "Oops! Something went wrong. Please try again later.";
@@ -66,7 +110,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     }
     
     // Close connection
-    mysqli_close($link);
+    mysqli_close($conn);
 }
 ?>
  
@@ -93,43 +137,50 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
                         <div class="form-group">
                             <label>ID</label>
-                            <input type="text" name="name" class="form-control <?php echo (!empty($name_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $name; ?>">
-                            <span class="invalid-feedback"><?php echo $name_err;?></span>
+                            <input type="text" name="id" class="form-control <?php echo (!empty($id_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $id; ?>">
+                            <span class="invalid-feedback"><?php echo $id_err;?></span>
                         </div>
+                        <script>
+                        $(document).ready(function(){
+                            $('input[name="date"]').datepicker({
+                                dateFormat: 'yy-mm-dd' // Adjust the date format as needed
+                            });
+                        });
+                        </script>
                         <div class="form-group">
-                            <label>Date</label>
-                            <input type="text" name="salary" class="form-control <?php echo (!empty($salary_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $salary; ?>">
-                            <span class="invalid-feedback"><?php echo $salary_err;?></span>
+                        <label>Date</label>
+                        <input type="date" name="date" class="form-control <?php echo (!empty($date_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $date; ?>">
+                        <span class="invalid-feedback"><?php echo $date_err;?></span>
                         </div>
                         <div class="form-group">
                             <label>Name</label>
-                            <input type="text" name="salary" class="form-control <?php echo (!empty($salary_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $salary; ?>">
+                            <input type="text" name="name" class="form-control <?php echo (!empty($salary_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $name; ?>">
                             <span class="invalid-feedback"><?php echo $salary_err;?></span>
                         </div>
                         <div class="form-group">
                             <label>Starting Bankroll</label>
-                            <input type="text" name="salary" class="form-control <?php echo (!empty($salary_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $salary; ?>">
-                            <span class="invalid-feedback"><?php echo $salary_err;?></span>
+                            <input type="text" name="broll" class="form-control <?php echo (!empty($start_broll_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $broll; ?>">
+                            <span class="invalid-feedback"><?php echo $start_broll_err;?></span>
                         </div>
                         <div class="form-group">
                             <label>Unit Size per Bet</label>
-                            <input type="text" name="salary" class="form-control <?php echo (!empty($salary_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $salary; ?>">
-                            <span class="invalid-feedback"><?php echo $salary_err;?></span>
+                            <input type="text" name="spbet" class="form-control <?php echo (!empty($unit_psize_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $spbet; ?>">
+                            <span class="invalid-feedback"><?php echo $unit_psize_err;?></span>
                         </div>
                         <div class="form-group">
                             <label>Win/Lose</label>
-                            <input type="text" name="salary" class="form-control <?php echo (!empty($salary_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $salary; ?>">
-                            <span class="invalid-feedback"><?php echo $salary_err;?></span>
+                            <input type="text" name="winlose" class="form-control <?php echo (!empty($win_lose_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $winlose; ?>">
+                            <span class="invalid-feedback"><?php echo $win_lose_err;?></span>
                         </div>
                         <div class="form-group">
                             <label>Shares</label>
-                            <input type="text" name="salary" class="form-control <?php echo (!empty($salary_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $salary; ?>">
-                            <span class="invalid-feedback"><?php echo $salary_err;?></span>
+                            <input type="text" name="shares" class="form-control <?php echo (!empty($shares_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $shares; ?>">
+                            <span class="invalid-feedback"><?php echo $shares_err;?></span>
                         </div>
                         
 
                         <input type="submit" class="btn btn-success fa fa-plus" value="Add New">
-                        <a href="index.php" class="btn btn-secondary ml-2">Cancel</a>
+                        <a href="calendar2.php" class="btn btn-secondary ml-2">Cancel</a>
 
                     </form>
                 </div>

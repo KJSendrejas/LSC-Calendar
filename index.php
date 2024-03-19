@@ -5,7 +5,7 @@ if (isset($_POST['submit'])) {
     $password = $_POST['password'];
 
     if($username == "admin" && $password == "admin"){
-        header("Location: calendar.php");
+        header("Location: calendar2.php");
     exit();
     }else{
         echo '<script>alert("Incorrect Username or Password");</script>';
