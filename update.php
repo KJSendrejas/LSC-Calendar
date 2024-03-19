@@ -1,7 +1,3 @@
-<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-
 <?php
 // Include config file
 require_once "config.php";
@@ -11,93 +7,97 @@ $id  = $date = $name = $broll = $spbet = $winlose = $shares = "";
 $id_err  = $date_err = $name_err = $start_broll_err = $unit_psize_err = $win_lose_err = $shares_err = "";
  
 // Processing form data when form is submitted
-if($_SERVER["REQUEST_METHOD"] == "POST"){
+if(isset($_POST["id"]) && !empty($_POST["id"])){
+    // Get hidden input value
+    $id = $_POST["id"];
     
-     // Validate id
-     $input_id = trim($_POST["id"]);
-     if(empty($input_id)){
-        $id_err = "Please enter the account id.";     
+    // Validate id
+    $input_id = trim($_POST["id"]);
+    if(empty($input_id)){
+       $id_err = "Please enter your account ID.";     
+   } else{
+       $id = $input_id;
+   }
+
+   // Validate date
+   $input_date = trim($_POST["date"]);
+   if(empty($input_date)){
+   $date_err = "Please select date.";     
+   } else{
+   $date = $input_date;
+   }
+
+   // Validate name
+   $input_name = trim($_POST["name"]);
+   if(empty($input_name)){
+   $name_err = "Please enter a name.";
+   } elseif(!ctype_digit($input_name)){
+   $start_broll_err = "Please enter a valid input.";} else{
+       $name = $input_name;
+   }
+   
+   // Validate bankroll
+   $input_broll = trim($_POST["broll"]);
+   if(empty($input_broll)){
+       $start_broll_err = "Please enter the starting bankroll.";     
+   } elseif(!ctype_digit($input_broll)){
+       $start_broll_err = "Please enter a valid input.";
+   } else{
+       $broll = $input_broll;
+   }
+
+   // Validate unit size per bet
+   $input_spbet = trim($_POST["spbet"]);
+   if(empty($input_spbet)){
+       $unit_psize_err = "Please enter the unit size amount.";     
+   } elseif(!ctype_digit($input_spbet)){
+       $unit_psize_err = "Please enter a valid input.";
+   } else{
+       $spbet = $input_spbet;
+   }
+
+    // Validate win/lose
+    $input_winlose = trim($_POST["winlose"]);
+    if(empty($input_winlose)){
+        $win_lose_err = "Please enter the win or lose amount.";     
+    } elseif(!ctype_digit($input_winlose)){
+        $win_lose_err = "Please enter a valid input.";
     } else{
-        $id = $input_id;
+        $winlose = $input_winlose;
     }
 
-    // Validate date
-    $input_date = trim($_POST["date"]);
-    if(empty($input_date)){
-    $date_err = "Please enter date.";     
+    // Validate shares
+    $input_shares = trim($_POST["shares"]);
+    if(empty($input_shares)){
+        $shares_err = "Please enter the share amount.";     
+    } elseif(!ctype_digit($input_shares)){
+        $shares_err = "Please enter a valid input.";
     } else{
-    $date = $input_date;
+        $shares = $input_shares;
     }
-
-    // Validate name
-    $input_name = trim($_POST["name"]);
-    if(empty($input_name)){
-    $name_err = "Please enter a name.";
-    } else{
-        $name = $input_name;
-    }
-    
-    // Validate bankroll
-    $input_broll = trim($_POST["broll"]);
-    if(empty($input_broll)){
-        $start_broll_err = "Please enter the starting bankroll.";     
-    } elseif(!ctype_digit($input_broll)){
-        $start_broll_err = "Please enter a valid input.";
-    } else{
-        $broll = $input_broll;
-    }
-
-    // Validate unit size per bet
-    $input_spbet = trim($_POST["spbet"]);
-    if(empty($input_spbet)){
-        $unit_psize_err = "Please enter the unit size amount.";     
-    } elseif(!ctype_digit($input_spbet)){
-        $unit_psize_err = "Please enter a valid input.";
-    } else{
-        $spbet = $input_spbet;
-    }
-
-     // Validate win/lose
-     $input_winlose = trim($_POST["winlose"]);
-     if(empty($input_winlose)){
-         $win_lose_err = "Please enter the win or lose amount.";     
-     } elseif(!ctype_digit($input_winlose)){
-         $win_lose_err = "Please enter a valid input.";
-     } else{
-         $winlose = $input_winlose;
-     }
-
-     // Validate shares
-     $input_shares = trim($_POST["shares"]);
-     if(empty($input_shares)){
-         $shares_err = "Please enter the share amount.";     
-     } elseif(!ctype_digit($input_shares)){
-         $shares_err = "Please enter a valid input.";
-     } else{
-         $shares = $input_shares;
-     }
     
     // Check input errors before inserting in database
     if(empty($id_err) && empty($date_err) && empty($name_err) && empty($start_broll_err) && empty($unit_psize_err) && empty($winlose_err) && empty($shares_err)){
-        // Prepare an insert statement
-        $sql = "INSERT INTO members (id , date , name, start_broll, unit_pbet, win_lose, share ) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        // Prepare an update statement
+        $sql = "UPDATE members SET id =?, date=?, name=?, start_broll=?, unit_pbet=?, win_lose=?, share=? WHERE id=?";
          
         if($stmt = mysqli_prepare($conn, $sql)){
             // Bind variables to the prepared statement as parameters
             mysqli_stmt_bind_param($stmt, "sssssss", $param_id, $param_date, $param_name, $param_broll, $param_spbet, $param_winlose, $param_shares);
             
-            // Set parameters
-            $param_id = $id;
-            $param_date = $date;
-            $param_name = $name;
-            $param_broll = $broll;
-            $param_spbet = $spbet;
-            $param_winlose = $winlose;
-            $param_shares = $shares;
+             // Set parameters
+             $param_id = $id;
+             $param_date = $date;
+             $param_name = $name;
+             $param_broll = $broll;
+             $param_spbet = $spbet;
+             $param_winlose = $winlose;
+             $param_shares = $shares;
+             $param_id = $id;
             
             // Attempt to execute the prepared statement
             if(mysqli_stmt_execute($stmt)){
-                // Records created successfully. Redirect to landing page
+                // Records updated successfully. Redirect to landing page
                 header("location: calendar2.php");
                 exit();
             } else{
@@ -111,6 +111,59 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     
     // Close connection
     mysqli_close($conn);
+} else{
+    // Check existence of id parameter before processing further
+    if(isset($_GET["id"]) && !empty(trim($_GET["id"]))){
+        // Get URL parameter
+        $id =  trim($_GET["id"]);
+        
+        // Prepare a select statement
+        $sql = "SELECT * FROM members WHERE id = ?";
+        if($stmt = mysqli_prepare($conn, $sql)){
+            // Bind variables to the prepared statement as parameters
+            mysqli_stmt_bind_param($stmt, "i", $param_id);
+            
+            // Set parameters
+            $param_id = $id;
+            
+            // Attempt to execute the prepared statement
+            if(mysqli_stmt_execute($stmt)){
+                $result = mysqli_stmt_get_result($stmt);
+    
+                if(mysqli_num_rows($result) == 1){
+                    /* Fetch result row as an associative array. Since the result set
+                    contains only one row, we don't need to use while loop */
+                    $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+                    
+                    // Retrieve individual field value
+                    $id = $row ["id"];
+                    $date  = $row["date"];
+                    $name = $row["name"];
+                    $broll = $row["start_broll"];
+                    $spbet = $row["unit_pbet"];
+                    $winlose = $row["win_lose"];
+                    $shares = $row["share"];
+                } else{
+                    // URL doesn't contain valid id. Redirect to error page
+                    header("location: error.php");
+                    exit();
+                }
+                
+            } else{
+                echo "Oops! Something went wrong. Please try again later.";
+            }
+        }
+        
+        // Close statement
+        mysqli_stmt_close($stmt);
+        
+        // Close connection
+        mysqli_close($conn);
+    }  else{
+        // URL doesn't contain id parameter. Redirect to error page
+        header("location: error.php");
+        exit();
+    }
 }
 ?>
  
@@ -118,7 +171,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Create Record</title>
+    <title>Update Record</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         .wrapper{
@@ -132,10 +185,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-                    <h2 class="mt-5">Add New</h2>
-                    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-
-                        <div class="form-group">
+                    <h2 class="mt-5">Update Record</h2>
+                    <p></p>
+                    <form action="<?php echo htmlspecialchars(basename($_SERVER['REQUEST_URI'])); ?>" method="post">
+                    
+                    <div class="form-group">
                             <label>ID</label>
                             <input type="text" name="id" class="form-control <?php echo (!empty($id_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $id; ?>">
                             <span class="invalid-feedback"><?php echo $id_err;?></span>
@@ -177,11 +231,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                             <input type="text" name="shares" class="form-control <?php echo (!empty($shares_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $shares; ?>">
                             <span class="invalid-feedback"><?php echo $shares_err;?></span>
                         </div>
-                        
+                        <input type="hidden" name="id" value="<?php echo $id; ?>"/>
 
-                        <input type="submit" class="btn btn-success fa fa-plus" value="Add New">
+                        <input type="submit" class="btn btn-primary" value="Update">
                         <a href="calendar2.php" class="btn btn-secondary ml-2">Cancel</a>
-
                     </form>
                 </div>
             </div>        
