@@ -1,3 +1,7 @@
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
 <?php
 // Include config file
 require_once "config.php";
@@ -7,14 +11,12 @@ $id  = $date = $name = $broll = $spbet = $winlose = $shares = "";
 $id_err  = $date_err = $name_err = $start_broll_err = $unit_psize_err = $win_lose_err = $shares_err = "";
  
 // Processing form data when form is submitted
-if(isset($_POST["id"]) && !empty($_POST["id"])){
-    // Get hidden input value
-    $id = $_POST["id"];
+if($_SERVER["REQUEST_METHOD"] == "POST"){
     
     // Validate id
     $input_id = trim($_POST["id"]);
     if(empty($input_id)){
-       $id_err = "Please enter your account ID.";     
+       $id_err = "Please enter the account id.";     
    } else{
        $id = $input_id;
    }
@@ -22,7 +24,7 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
    // Validate date
    $input_date = trim($_POST["date"]);
    if(empty($input_date)){
-   $date_err = "Please select date.";     
+   $date_err = "Please enter date.";     
    } else{
    $date = $input_date;
    }
@@ -31,8 +33,7 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
    $input_name = trim($_POST["name"]);
    if(empty($input_name)){
    $name_err = "Please enter a name.";
-   } elseif(!ctype_digit($input_name)){
-   $start_broll_err = "Please enter a valid input.";} else{
+   } else{
        $name = $input_name;
    }
    
@@ -79,21 +80,20 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
     // Check input errors before inserting in database
     if(empty($id_err) && empty($date_err) && empty($name_err) && empty($start_broll_err) && empty($unit_psize_err) && empty($winlose_err) && empty($shares_err)){
         // Prepare an update statement
-        $sql = "UPDATE members SET id =?, date=?, name=?, start_broll=?, unit_pbet=?, win_lose=?, share=? WHERE id=?";
-         
+        $sql = "UPDATE members SET date=?, name=?, start_broll=?, unit_pbet=?, win_lose=?, share=? WHERE id=?";
+
         if($stmt = mysqli_prepare($conn, $sql)){
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "sssssss", $param_id, $param_date, $param_name, $param_broll, $param_spbet, $param_winlose, $param_shares);
+            mysqli_stmt_bind_param($stmt, "ssssssi", $param_date, $param_name, $param_broll, $param_spbet, $param_winlose, $param_shares, $param_id);
             
-             // Set parameters
-             $param_id = $id;
-             $param_date = $date;
-             $param_name = $name;
-             $param_broll = $broll;
-             $param_spbet = $spbet;
-             $param_winlose = $winlose;
-             $param_shares = $shares;
-             $param_id = $id;
+            // Set parameters
+            $param_id = $id;
+            $param_date = $date;
+            $param_name = $name;
+            $param_broll = $broll;
+            $param_spbet = $spbet;
+            $param_winlose = $winlose;
+            $param_shares = $shares;
             
             // Attempt to execute the prepared statement
             if(mysqli_stmt_execute($stmt)){
@@ -186,9 +186,8 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
             <div class="row">
                 <div class="col-md-12">
                     <h2 class="mt-5">Update Record</h2>
-                    <p></p>
-                    <form action="<?php echo htmlspecialchars(basename($_SERVER['REQUEST_URI'])); ?>" method="post">
-                    
+                    <p>Please edit the input values and submit to update the employee record.</p>
+                    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                     <div class="form-group">
                             <label>ID</label>
                             <input type="text" name="id" class="form-control <?php echo (!empty($id_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $id; ?>">
@@ -231,9 +230,8 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
                             <input type="text" name="shares" class="form-control <?php echo (!empty($shares_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $shares; ?>">
                             <span class="invalid-feedback"><?php echo $shares_err;?></span>
                         </div>
-                        <input type="hidden" name="id" value="<?php echo $id; ?>"/>
-
-                        <input type="submit" class="btn btn-primary" value="Update">
+                        
+                        <input type="submit" class="btn btn-primary" value="Submit">
                         <a href="calendar2.php" class="btn btn-secondary ml-2">Cancel</a>
                     </form>
                 </div>
