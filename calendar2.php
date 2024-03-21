@@ -20,7 +20,8 @@
             border-bottom: 1px solid #ddd;
         }
         table th {
-            background-color: #f2f2f2;
+            background-color: #f3c716;
+
         }
         @media (max-width: 576px) {
             .pull-left, .pull-right {
