@@ -7,8 +7,8 @@
 require_once "config.php";
  
 // Define variables and initialize with empty values
-$id  = $date = $name = $broll = $spbet = $winlose = $shares = "";
-$id_err  = $date_err = $name_err = $start_broll_err = $unit_psize_err = $win_lose_err = $shares_err = "";
+$id  = $date = $name = $broll = $spbet = $winlose = "";
+$id_err  = $date_err = $name_err = $start_broll_err = $unit_psize_err = $win_lose_err = "";
  
 // Processing form data when form is submitted
 if($_SERVER["REQUEST_METHOD"] == "POST"){
@@ -16,7 +16,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
      // Validate id
      $input_id = trim($_POST["id"]);
      if(empty($input_id)){
-        $id_err = "Please enter the account id.";     
+        //$id_err = "Please enter the account id.";     
+        $id = $input_id;
     } else{
         $id = $input_id;
     }
@@ -61,30 +62,20 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
      $input_winlose = trim($_POST["winlose"]);
      if(empty($input_winlose)){
          $win_lose_err = "Please enter the win or lose amount.";     
-     } elseif(!ctype_digit($input_winlose)){
+     } elseif(!is_numeric($input_winlose)){
          $win_lose_err = "Please enter a valid input.";
      } else{
          $winlose = $input_winlose;
      }
-
-     // Validate shares
-     $input_shares = trim($_POST["shares"]);
-     if(empty($input_shares)){
-         $shares_err = "Please enter the share amount.";     
-     } elseif(!ctype_digit($input_shares)){
-         $shares_err = "Please enter a valid input.";
-     } else{
-         $shares = $input_shares;
-     }
     
     // Check input errors before inserting in database
-    if(empty($id_err) && empty($date_err) && empty($name_err) && empty($start_broll_err) && empty($unit_psize_err) && empty($winlose_err) && empty($shares_err)){
+    if(empty($id_err) && empty($date_err) && empty($name_err) && empty($start_broll_err) && empty($unit_psize_err) && empty($winlose_err)){
         // Prepare an insert statement
-        $sql = "INSERT INTO members (id , date , name, start_broll, unit_pbet, win_lose, share ) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO members (id , date , name, start_broll, unit_pbet, win_lose) VALUES (?, ?, ?, ?, ?, ?)";
          
         if($stmt = mysqli_prepare($conn, $sql)){
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "sssssss", $param_id, $param_date, $param_name, $param_broll, $param_spbet, $param_winlose, $param_shares);
+            mysqli_stmt_bind_param($stmt, "ssssss", $param_id, $param_date, $param_name, $param_broll, $param_spbet, $param_winlose);
             
             // Set parameters
             $param_id = $id;
@@ -93,12 +84,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             $param_broll = $broll;
             $param_spbet = $spbet;
             $param_winlose = $winlose;
-            $param_shares = $shares;
             
             // Attempt to execute the prepared statement
             if(mysqli_stmt_execute($stmt)){
                 // Records created successfully. Redirect to landing page
-                header("location: calendar2.php");
+                header("location: calendar.php");
                 exit();
             } else{
                 echo "Oops! Something went wrong. Please try again later.";
@@ -172,15 +162,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                             <input type="text" name="winlose" class="form-control <?php echo (!empty($win_lose_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $winlose; ?>">
                             <span class="invalid-feedback"><?php echo $win_lose_err;?></span>
                         </div>
-                        <div class="form-group">
-                            <label>Shares</label>
-                            <input type="text" name="shares" class="form-control <?php echo (!empty($shares_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $shares; ?>">
-                            <span class="invalid-feedback"><?php echo $shares_err;?></span>
-                        </div>
-                        
-
                         <input type="submit" class="btn btn-success fa fa-plus" value="Add New">
-                        <a href="calendar2.php" class="btn btn-secondary ml-2">Cancel</a>
+                        <a href="calendar.php" class="btn btn-secondary ml-2">Cancel</a>
 
                     </form>
                 </div>

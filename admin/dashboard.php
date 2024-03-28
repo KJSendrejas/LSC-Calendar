@@ -8,14 +8,15 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
         .wrapper {
-            padding: 20px;
+            padding: 1px;
+            float: left;
         }
         table {
             width: 100%;
             border-collapse: collapse;
         }
         table th, table td {
-            padding: 8px;
+            padding: 1px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
@@ -28,7 +29,7 @@
                 float: none !important;
             }
             .mt-5 {
-                margin-top: 3rem !important;
+                margin-top: 1rem !important;
             }
         }
     </style>
@@ -39,25 +40,29 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="mt-5 mb-3 clearfix">
-                        <h2 class="float-left">Account Details</h2>
-                        <a href="addnew.php" class="btn btn-success float-right"><i class="fa fa-plus"></i> Add New</a>
-        
+                        <h2 class="float-left">Accounts</h2>
+                        <a href="newaccount.php" class="btn btn-success float-right"><i class="fa fa-plus"></i> Add New</a>
                     </div>
+                    
                     <?php
+                    
+                    session_start();
+
+                    if(!isset($_SESSION["username"])){
+                        header("location:/LSC-Calendar/index.php");
+                    }
                     require_once "config.php";
-                    $sql = "SELECT * FROM members";
+                    $sql = "SELECT * FROM accounts";
                     if($result = mysqli_query($conn, $sql)){
                         if(mysqli_num_rows($result) > 0){
                             echo '<table class="table table-bordered table-striped">';
                                 echo "<thead>";
                                     echo "<tr>";
                                         echo "<th>ID</th>";
-                                        echo "<th>Date</th>";
-                                        echo "<th>Name</th>";
-                                        echo "<th>Starting Bankroll</th>";
-                                        echo "<th>Unit Size</th>";
-                                        echo "<th>Win/Lose</th>";
-                                        echo "<th>Share</th>";
+                                        echo "<th>Username</th>";
+                                        echo "<th>Password</th>";
+                                        echo "<th>User Type</th>";
+                                        echo "<th>Email</th>";
                                         echo "<th>Action</th>";
                                     echo "</tr>";
                                 echo "</thead>";
@@ -65,12 +70,10 @@
                                 while($row = mysqli_fetch_array($result)){
                                     echo "<tr>";
                                         echo "<td>" . $row['id'] . "</td>";
-                                        echo "<td>" . $row['date'] . "</td>";
-                                        echo "<td>" . $row['name'] . "</td>";
-                                        echo "<td>" . $row['start_broll'] . "</td>";
-                                        echo "<td>" . $row['unit_pbet'] . "</td>";
-                                        echo "<td>" . $row['win_lose'] . "</td>";
-                                        echo "<td>" . $row['share'] . "</td>";
+                                        echo "<td>" . $row['username'] . "</td>";
+                                        echo "<td></td>";
+                                        echo "<td>" . $row['usertype'] . "</td>";
+                                        echo "<td>" . $row['email'] . "</td>";
                                         echo "<td>";
                                             echo '<a href="read.php?id='. $row['id'] .'" class="mr-3" title="View Record"><span class="fa fa-eye"></span></a>';
                                             echo '<a href="update.php?id='. $row['id'] .'" class="mr-3" title="Update Record"><span class="fa fa-pencil"></span></a>';
@@ -94,4 +97,6 @@
         </div>
     </div>
 </body>
+
+<a href="/LSC-Calendar/logout.php">Logout</a>
 </html>
